@@ -11,10 +11,10 @@ import (
 	"time"
 )
 
-func GenerateToken(uri string, duration time.Duration, keyName, key string) (string, error) {
+func GenerateToken(uri string, duration time.Duration, keyName string, key []byte) (string, error) {
 	tokenExpiry := strconv.Itoa(int(time.Now().UTC().Add(duration).Round(time.Second).Unix()))
 	sigUri := strings.ToLower(url.QueryEscape(uri))
-	h := hmac.New(sha256.New, []byte(key))
+	h := hmac.New(sha256.New, key)
 	_, err := h.Write([]byte(sigUri + "\n" + tokenExpiry))
 	if err != nil {
 		return "", err
