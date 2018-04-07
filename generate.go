@@ -7,18 +7,17 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 )
 
 func GenerateToken(uri string, duration time.Duration, keyName string, key []byte) (string, error) {
 	tokenExpiry := strconv.Itoa(int(time.Now().UTC().Add(duration).Round(time.Second).Unix()))
-	sigUri := strings.ToLower(url.QueryEscape(uri))
+	sigUri := url.QueryEscape(uri)
 	h := hmac.New(sha256.New, key)
 	_, err := h.Write([]byte(sigUri + "\n" + tokenExpiry))
 	if err != nil {
 		return "", err
 	}
 	sig := url.QueryEscape(base64.StdEncoding.EncodeToString(h.Sum(nil)))
-	return fmt.Sprintf("SharedAccessSignature sig=%s&se=%s&skn=%s&sr=%s", sig, tokenExpiry, keyName, sigUri), nil
+	return fmt.Sprintf("SharedAccessSignature sr=%s&sig=%s&se=%s", sigUri, sig, tokenExpiry), nil
 }
